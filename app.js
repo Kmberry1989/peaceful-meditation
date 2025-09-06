@@ -627,7 +627,7 @@ class MeditationGarden {
         const avatarGroup = new THREE.Group();
         
         // Body
-        const bodyGeometry = new THREE.CapsuleGeometry(0.3, 1.2);
+        const bodyGeometry = new THREE.CylinderGeometry(0.3, 0.3, 1.8);
         const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0xFFDBB5 });
         const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
         body.position.y = 1;
@@ -758,7 +758,7 @@ class MeditationGarden {
         const catGroup = new THREE.Group();
         
         // Body
-        const bodyGeometry = new THREE.CapsuleGeometry(0.15, 0.6);
+        const bodyGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.9);
         const catColors = [0x000000, 0x8B4513, 0xFF4500, 0xD3D3D3];
         const bodyMaterial = new THREE.MeshLambertMaterial({ 
             color: catColors[Math.floor(Math.random() * catColors.length)] 
