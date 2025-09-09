@@ -1,0 +1,12 @@
+{
+  "name": "peaceful-meditation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "echo \"No start script specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
