@@ -98,7 +98,7 @@ class MeditationGarden {
       bird: ['89abc6bdbb5b_cardinal__3d_asset_0_glb.glb','3a1af7d14723_blue_bird__3d_asset_0_glb.glb','db96878a5a10_woodpecker__3d_asset_0_glb.glb'],
       cat: ['08d0c3d15252_cat__3d_asset_0_glb.glb','98758d5f630d_cat__3d_asset_0_glb.glb','af707b76f76b_cat__3d_asset_0_glb.glb','f2afac263718_cat_black__3d_asset_0_glb.glb'],
       dog: [], // add if present
-      butterfly: ['0af6ab9bd921_butterfly__3d_asset_0_glb.glb','26ee47591d21_butterfly__3d_asset_0_glb.glb'],
+      butterfly: ['0af6ab9bd921_butterfly__3d_asset_0_glb.glb','26ee47591d21_butterfly__3d_asset_0_glb.glb','0be1c416d548_butterfly__3d_asset_0_glb.glb','d87ee13b11ec_butterfly__3d_asset_0_glb.glb'],
       frog: ['01ad36a5bea9_frog__3d_asset_0_glb.glb','a8e904d52958_frog__3d_asset_0_glb.glb','f45b6ce8e5ac_frog__3d_asset_0_glb.glb'],
       cricket: ['0267cff264d9_cricket_insect__3d_asset_0_glb.glb'],
       firefly: ['8746c07b2b96_firefly__3d_asset_0_glb.glb'],
@@ -107,14 +107,20 @@ class MeditationGarden {
       duck: ['97f3e231fc7b_duck__3d_asset_0_glb.glb'],
       rabbit: ['c9b7221975c3_rabbit__3d_asset_0_glb.glb'],
       owl: ['b044afadcd8c_owl__3d_asset_0_glb.glb'],
+      pigeon: ['763f6c4d2761_pigeon__3d_asset_0_glb.glb'],
+      crow: ['ebdae75b9d94_crow__3d_asset_0_glb.glb'],
+      geese: ['a44d4f1f30b7_geese__3d_asset_0_glb.glb'],
+      bee: ['60c7f3c7b593_honeybee__3d_asset_0_glb.glb'],
       tree: ['1df36cc8fe8f_tree__3d_asset_0_glb.glb','74e34cbb78e8_tree__3d_asset_0_glb.glb','a7b0c26150fd_tree__3d_asset_0_glb.glb','bf7e9e10cf68_tree__3d_asset_0_glb.glb'],
       house: ['129527db017e_small_cabin_with_front_porch_and.glb','400bfc61c3d1_small_cabin_with_front_porch_and.glb'],
       birdbath: ['b3d90bc61e3f_birdbath__3d_asset_0_glb.glb'],
+      birdhouse: ['305481297443_bird_house__3d_asset_0_glb.glb'],
       'porch-swing': ['48e2c4e32db4_porch_swing.glb','f28da8b525ca_porch_swing.glb'],
       'rocking-chair': ['3d6f05dbef54_rocking_chair__3d_asset_0_glb.glb'],
       truck: ['5410e4161646_truck__3d_asset_0_glb.glb','7540f9c77786_truck__3d_asset_0_glb.glb','eec3e444d4b9_truck__3d_asset_0_glb.glb','d85cc87b0b01_ford_truck__3d_asset_0_glb.glb','a1a9370e018d_ford_truck__3d_asset_0_glb.glb'],
-      car: ['24428ba0e7d5_car__3d_asset_0_glb.glb','f08d14e54b71_car__3d_asset_0_glb.glb'],
+      car: ['24428ba0e7d5_car__3d_asset_0_glb.glb','f08d14e54b71_car__3d_asset_0_glb.glb','1d8ed9c76843_dark_blue_2016_chevrolet_son_0_glb.glb'],
       motorcycle: ['0c0b438e0008_motorcycle_and_rider__3d_ass_0_glb.glb','aa27ba03cc01_motorcycle_and_rider__3d_ass_0_glb.glb'],
+      campfire: ['f7b5d7163386_campfire__3d_asset_0_glb.glb'],
       // expand mapping as desired
     };
     // Pre-load all in parallel for reuse:
@@ -208,6 +214,14 @@ class MeditationGarden {
     }
   }
 
+  playSound(key) {
+    if (!this.audioContext || !this.assets.sounds[key]) return;
+    const src = this.audioContext.createBufferSource();
+    src.buffer = this.assets.sounds[key];
+    src.connect(this.audioNodes.main);
+    src.start();
+  }
+
   // ----------- Scene Setup --------------
   createScene() {
     this.scene = new THREE.Scene();
@@ -281,11 +295,33 @@ class MeditationGarden {
     const road = new THREE.Mesh(new THREE.PlaneGeometry(50, 4), roadMat);
     road.rotation.x = -Math.PI/2; road.position.set(0, 0.02, 10); road.receiveShadow = true;
     this.scene.add(road);
+    // 6b. Driveway to the house
+    const driveMat = new THREE.MeshLambertMaterial({
+      map: this.assets.textures.driveway || null, color: !this.assets.textures.driveway ? 0x666666 : 0xffffff
+    });
+    const drive = new THREE.Mesh(new THREE.PlaneGeometry(4, 8), driveMat);
+    drive.rotation.x = -Math.PI / 2; drive.position.set(0, 0.03, 3); drive.receiveShadow = true;
+    this.scene.add(drive);
 
-    // 7. Water texture (applies to fountain/fountains)
-    // ... Expansion here as needed.
+    // 7. Pond with WATER texture
+    const pondMat = new THREE.MeshLambertMaterial({
+      map: this.assets.textures.water || null, color: !this.assets.textures.water ? 0x3366ff : 0xffffff
+    });
+    const pond = new THREE.Mesh(new THREE.CircleGeometry(3, 32), pondMat);
+    pond.rotation.x = -Math.PI / 2; pond.position.set(-5, 0.04, 5); pond.receiveShadow = true;
+    this.scene.add(pond);
 
-    // 8. Sky dome/sphere + TEXTURED clouds/stars
+    // 8. Birdhouse and campfire
+    await this.instantiateModel('birdhouse', { pos: [5, 2.5, 0], scale: 0.3 });
+    const camp = await this.instantiateModel('campfire', { pos: [-3, 0, 2], scale: 0.5 });
+    if (camp && this.assets.textures.flame) {
+      const flameMat = new THREE.SpriteMaterial({ map: this.assets.textures.flame, transparent: true });
+      const flame = new THREE.Sprite(flameMat);
+      flame.position.set(-3, 0.7, 2); flame.scale.set(1,1,1);
+      this.scene.add(flame);
+    }
+
+    // 9. Sky dome/sphere + TEXTURED clouds/stars
     this.createSky();
   }
   createFallbackHouse() {
@@ -352,7 +388,25 @@ class MeditationGarden {
     for(let i=0; i<2; i++)
       this.animals.push(await this.instantiateModel('frog', { pos: [Math.random()*10-5, 0.05, Math.random()*10-5], scale: 1 }));
     for(let i=0; i<2; i++)
+      this.animals.push(await this.instantiateModel('cricket', { pos: [Math.random()*10-5, 0.02, Math.random()*10-5], scale: 1 }));
+    for(let i=0; i<2; i++)
       this.animals.push(await this.instantiateModel('butterfly', { pos: [Math.random()*20-10, 1+Math.random()*2, Math.random()*20-10], scale: 0.7 }));
+
+    // Additional wildlife using remaining assets
+    for(let i=0; i<1; i++)
+      this.animals.push(await this.instantiateModel('duck', { pos: [Math.random()*6-3, 0.05, Math.random()*6+2], scale: 1 }));
+    this.animals.push(await this.instantiateModel('rabbit', { pos: [Math.random()*10-5, 0.1, Math.random()*10-5], scale: 0.8 }));
+    this.animals.push(await this.instantiateModel('owl', { pos: [Math.random()*10-5, 3, Math.random()*10-5], scale: 0.8 }));
+    this.animals.push(await this.instantiateModel('pigeon', { pos: [Math.random()*10-5, 1.5, Math.random()*10-5], scale: 0.9 }));
+    this.animals.push(await this.instantiateModel('crow', { pos: [Math.random()*10-5, 2, Math.random()*10-5], scale: 0.9 }));
+    this.animals.push(await this.instantiateModel('geese', { pos: [Math.random()*10-5, 0.2, Math.random()*10-5], scale: 1 }));
+    for(let i=0; i<3; i++)
+      this.animals.push(await this.instantiateModel('hummingbird', { pos: [Math.random()*10-5, 2+Math.random()*3, Math.random()*10-5], scale: 0.6 }));
+    for(let i=0; i<3; i++)
+      this.animals.push(await this.instantiateModel('firefly', { pos: [Math.random()*10-5, 1+Math.random()*2, Math.random()*10-5], scale: 0.3 }));
+    for(let i=0; i<3; i++)
+      this.animals.push(await this.instantiateModel('bee', { pos: [Math.random()*10-5, 1+Math.random()*2, Math.random()*10-5], scale: 0.3 }));
+    ['bird','duck','frog','owl','squirrel','cat','geese','crow','hummingbird','cricket'].forEach(k => this.playSound(k));
 
     // Add more animals as you see fit or extend this loop
   }
