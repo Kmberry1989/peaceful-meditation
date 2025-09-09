@@ -86,11 +86,20 @@ class MeditationGarden {
       'clouds', 'driveway', 'flame', 'grass', 'road', 'snow', 'stars', 'water'
     ];
     for (const tName of textureNames) {
-      this.assets.textures[tName] = await new Promise(resolve => {
-        textureLoader.load(`assets/textures/${tName}.png`, tex => { 
-          tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-          resolve(tex);
-        });
+      this.assets.textures[tName] = await new Promise((resolve) => {
+        textureLoader.load(
+          `assets/textures/${tName}.png`,
+          tex => {
+            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+            resolve(tex);
+          },
+          undefined,
+          err => {
+            console.error(`Texture load error: ${tName}`, err);
+            this.showStatusMessage(`Texture missing: ${tName}`);
+            resolve(null);
+          }
+        );
       });
     }
   }
@@ -133,8 +142,17 @@ class MeditationGarden {
     for (const [key, glbList] of Object.entries(modelTypes)) {
       this.assets.models[key] = [];
       for (const file of glbList) {
-        const p = new Promise(resolve => {
-          gltfLoader.load(`assets/models/${file}`, gltf => resolve(gltf.scene));
+        const p = new Promise((resolve) => {
+          gltfLoader.load(
+            `assets/models/${file}`,
+            gltf => resolve(gltf.scene),
+            undefined,
+            err => {
+              console.error(`Model load error: ${file}`, err);
+              this.showStatusMessage(`Model missing: ${file}`);
+              resolve(null);
+            }
+          );
         });
         this.assets.models[key].push(p);
       }
@@ -174,8 +192,17 @@ class MeditationGarden {
     };
     for (const [key, file] of Object.entries(soundMap)) {
       if (!file) continue;
-      this.assets.sounds[key] = await new Promise(resolve => {
-        audioLoader.load(`assets/sfx/${file}`, buffer => resolve(buffer));
+      this.assets.sounds[key] = await new Promise((resolve) => {
+        audioLoader.load(
+          `assets/sfx/${file}`,
+          buffer => resolve(buffer),
+          undefined,
+          err => {
+            console.error(`Sound load error: ${file}`, err);
+            this.showStatusMessage(`Sound missing: ${file}`);
+            resolve(null);
+          }
+        );
       });
     }
   }
@@ -430,8 +457,48 @@ class MeditationGarden {
   }
 
   // ----------- Controls, Logic, Render ---------
-  setupControls() { /* ... Copy your previous slider/button code. ... */ }
-  setupEventListeners() { /* ... Copy your previous event listeners. ... */ }
+  setupControls() {
+    // Example: connect sliders/buttons to properties (expand as needed)
+    const timeSlider = document.getElementById('time-slider');
+    if (timeSlider) {
+      timeSlider.addEventListener('input', e => {
+        this.timeOfDay = parseFloat(e.target.value);
+        if (typeof this.updateTimeDisplay === 'function') this.updateTimeDisplay();
+      });
+    }
+    const rainSlider = document.getElementById('rain-slider');
+    if (rainSlider) {
+      rainSlider.addEventListener('input', e => {
+        this.rainIntensity = parseFloat(e.target.value);
+        if (typeof this.updateWeather === 'function') this.updateWeather();
+      });
+    }
+    const windSlider = document.getElementById('wind-slider');
+    if (windSlider) {
+      windSlider.addEventListener('input', e => {
+        this.windStrength = parseFloat(e.target.value);
+        if (typeof this.updateWeather === 'function') this.updateWeather();
+      });
+    }
+    // Add more controls as needed
+  }
+  setupEventListeners() {
+    // Example: button for changing season
+    const seasonBtn = document.getElementById('season-btn');
+    if (seasonBtn) {
+      seasonBtn.addEventListener('click', () => {
+        if (typeof this.changeSeason === 'function') this.changeSeason();
+      });
+    }
+    // Example: random weather button
+    const weatherRandom = document.getElementById('weather-random');
+    if (weatherRandom) {
+      weatherRandom.addEventListener('click', () => {
+        if (typeof this.randomizeWeather === 'function') this.randomizeWeather();
+      });
+    }
+    // Add more event listeners as needed
+  }
 
   // ----------- Weather & Season ---------
   createWeatherSystems() { /* ... Rain, wind, snow, etc (use SFX) ... */ }
