@@ -24,6 +24,7 @@ class MeditationGarden {
     this.windStrength = 0.5;
     this.season = 'spring';
     this.isIdleMode = false;
+    this.isRaining = true;
 
     // Assets
     this.assets = { models: {}, textures: {}, sounds: {} };
@@ -422,28 +423,46 @@ class MeditationGarden {
     return scaleMap[type] || 1;
   }
 
+  getAllowedAnimals() {
+    const dayAnimals = ['bird','squirrel','butterfly','duck','rabbit','hummingbird','bee','geese'];
+    const nightAnimals = ['owl','cricket','frog','firefly'];
+    const seasonalExtras = {
+      spring: ['frog','butterfly'],
+      summer: ['frog','cricket','firefly'],
+      fall: ['geese','crow'],
+      winter: ['pigeon','crow']
+    };
+    let list = ['cat'];
+    if (this.timeOfDay >= 6 && this.timeOfDay < 18) list = list.concat(dayAnimals);
+    else list = list.concat(nightAnimals);
+    list = list.concat(seasonalExtras[this.season] || []);
+    return Array.from(new Set(list));
+  }
+
   async createAnimals() {
     this.animals = [];
-    this.animalTypes = ['squirrel','bird','cat','frog','cricket','butterfly','duck','rabbit','owl','pigeon','crow','geese','hummingbird','firefly','bee'];
-
     const spawnAnimal = async () => {
       if (this.animals.length >= this.maxAnimals) return;
-      const type = this.animalTypes[Math.floor(Math.random()*this.animalTypes.length)];
-      const pos = this.getRandomAnimalPosition(type);
-      const scale = this.getAnimalScale(type);
-      const animal = await this.instantiateModel(type, { pos, scale });
-      if (animal) {
-        this.animals.push(animal);
-        this.playSound(type);
-        setTimeout(() => {
-          this.scene.remove(animal);
-          this.animals = this.animals.filter(a => a !== animal);
-        }, this.animalLifetime);
+      const choices = this.getAllowedAnimals();
+      if (!choices.length) return;
+      const type = choices[Math.floor(Math.random()*choices.length)];
+      const count = type === 'firefly' ? 5 : type === 'bird' ? 2 : 1;
+      for (let i = 0; i < count; i++) {
+        const pos = this.getRandomAnimalPosition(type);
+        const scale = this.getAnimalScale(type);
+        const animal = await this.instantiateModel(type, { pos, scale });
+        if (animal) {
+          this.animals.push(animal);
+          this.playSound(type);
+          setTimeout(() => {
+            this.scene.remove(animal);
+            this.animals = this.animals.filter(a => a !== animal);
+          }, this.animalLifetime);
+        }
       }
     };
 
     this.spawnAnimal = spawnAnimal;
-    for (let i = 0; i < this.maxAnimals; i++) await spawnAnimal();
     setInterval(spawnAnimal, this.animalSpawnInterval);
   }
   async createVehicles() {
@@ -501,7 +520,12 @@ class MeditationGarden {
   }
 
   // ----------- Weather & Season ---------
-  createWeatherSystems() { /* ... Rain, wind, snow, etc (use SFX) ... */ }
+  createWeatherSystems() {
+    this.isRaining = true;
+    setInterval(() => {
+      if (this.isRaining && Math.random() < 0.5) this.playSound('thunder');
+    }, 10000);
+  }
 
   // ----------- Animation Loop -----------
   animate() {
