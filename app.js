@@ -38,6 +38,11 @@ class MeditationGarden {
     this.audioNodes = {};
     this.sfx = {};
 
+    // Animal spawning parameters
+    this.maxAnimals = 6;
+    this.animalSpawnInterval = 5000; // ms
+    this.animalLifetime = 15000; // ms
+
     // Start program
     this.init();
   }
@@ -375,40 +380,44 @@ class MeditationGarden {
   }
 
   // ----------- Dynamic Animals, Vehicles, Nature -------------
+  getRandomAnimalPosition(type) {
+    let x = Math.random() * 20 - 10;
+    let z = Math.random() * 20 - 10;
+    let y = 0;
+    const flyers = ['bird','pigeon','crow','owl','hummingbird','firefly','bee','butterfly'];
+    if (flyers.includes(type)) y = 1 + Math.random() * 2;
+    if (type === 'duck') { x = Math.random()*6-3; z = Math.random()*6+2; y = 0.05; }
+    return [x, y, z];
+  }
+
+  getAnimalScale(type) {
+    const scaleMap = { butterfly: 0.7, frog: 1, cricket: 1, duck: 1, rabbit: 0.8, owl: 0.8, pigeon: 0.9, crow: 0.9, geese: 1, hummingbird: 0.6, firefly: 0.3, bee: 0.3 };
+    return scaleMap[type] || 1;
+  }
+
   async createAnimals() {
     this.animals = [];
-    // Place animals at logical spots, using model asset where available
-    for(let i=0; i<3; i++)
-      this.animals.push(await this.instantiateModel('squirrel', { pos: [Math.random()*10-5, 0.2, Math.random()*10-5], scale: 1 }));
-    for(let i=0; i<5; i++)
-      this.animals.push(await this.instantiateModel('bird', { pos: [Math.random()*15-7.5, 2+Math.random()*3, Math.random()*15-7.5], scale: 1 }));
-    for(let i=0; i<2; i++)
-      this.animals.push(await this.instantiateModel('cat', { pos: [Math.random()*12-6, 0, Math.random()*12-6], scale: 1 }));
-    // Butterflies, frogs, etc:
-    for(let i=0; i<2; i++)
-      this.animals.push(await this.instantiateModel('frog', { pos: [Math.random()*10-5, 0.05, Math.random()*10-5], scale: 1 }));
-    for(let i=0; i<2; i++)
-      this.animals.push(await this.instantiateModel('cricket', { pos: [Math.random()*10-5, 0.02, Math.random()*10-5], scale: 1 }));
-    for(let i=0; i<2; i++)
-      this.animals.push(await this.instantiateModel('butterfly', { pos: [Math.random()*20-10, 1+Math.random()*2, Math.random()*20-10], scale: 0.7 }));
+    this.animalTypes = ['squirrel','bird','cat','frog','cricket','butterfly','duck','rabbit','owl','pigeon','crow','geese','hummingbird','firefly','bee'];
 
-    // Additional wildlife using remaining assets
-    for(let i=0; i<1; i++)
-      this.animals.push(await this.instantiateModel('duck', { pos: [Math.random()*6-3, 0.05, Math.random()*6+2], scale: 1 }));
-    this.animals.push(await this.instantiateModel('rabbit', { pos: [Math.random()*10-5, 0.1, Math.random()*10-5], scale: 0.8 }));
-    this.animals.push(await this.instantiateModel('owl', { pos: [Math.random()*10-5, 3, Math.random()*10-5], scale: 0.8 }));
-    this.animals.push(await this.instantiateModel('pigeon', { pos: [Math.random()*10-5, 1.5, Math.random()*10-5], scale: 0.9 }));
-    this.animals.push(await this.instantiateModel('crow', { pos: [Math.random()*10-5, 2, Math.random()*10-5], scale: 0.9 }));
-    this.animals.push(await this.instantiateModel('geese', { pos: [Math.random()*10-5, 0.2, Math.random()*10-5], scale: 1 }));
-    for(let i=0; i<3; i++)
-      this.animals.push(await this.instantiateModel('hummingbird', { pos: [Math.random()*10-5, 2+Math.random()*3, Math.random()*10-5], scale: 0.6 }));
-    for(let i=0; i<3; i++)
-      this.animals.push(await this.instantiateModel('firefly', { pos: [Math.random()*10-5, 1+Math.random()*2, Math.random()*10-5], scale: 0.3 }));
-    for(let i=0; i<3; i++)
-      this.animals.push(await this.instantiateModel('bee', { pos: [Math.random()*10-5, 1+Math.random()*2, Math.random()*10-5], scale: 0.3 }));
-    ['bird','duck','frog','owl','squirrel','cat','geese','crow','hummingbird','cricket'].forEach(k => this.playSound(k));
+    const spawnAnimal = async () => {
+      if (this.animals.length >= this.maxAnimals) return;
+      const type = this.animalTypes[Math.floor(Math.random()*this.animalTypes.length)];
+      const pos = this.getRandomAnimalPosition(type);
+      const scale = this.getAnimalScale(type);
+      const animal = await this.instantiateModel(type, { pos, scale });
+      if (animal) {
+        this.animals.push(animal);
+        this.playSound(type);
+        setTimeout(() => {
+          this.scene.remove(animal);
+          this.animals = this.animals.filter(a => a !== animal);
+        }, this.animalLifetime);
+      }
+    };
 
-    // Add more animals as you see fit or extend this loop
+    this.spawnAnimal = spawnAnimal;
+    for (let i = 0; i < this.maxAnimals; i++) await spawnAnimal();
+    setInterval(spawnAnimal, this.animalSpawnInterval);
   }
   async createVehicles() {
     // Add random vehicles to road, using vehicles assets as available
