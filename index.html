@@ -1,117 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peaceful Meditation Garden - 3D Relaxation Tool</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="three.min.js"></script>
-    <script src="OrbitControls.js"></script>
+  <meta charset="UTF-8">
+  <title>Peaceful Meditation Garden - 3D Relaxation Tool</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="scene-container"></div>
-    
-    <!-- UI Controls -->
-    <div id="ui-overlay">
-        <!-- Weather Controls -->
-        <div class="card control-panel" id="weather-panel">
-            <h3>Environment</h3>
-            <div class="control-group">
-                <label class="form-label">Time of Day</label>
-                <input type="range" class="form-control" id="time-slider" min="0" max="24" step="0.1" value="12">
-                <span id="time-display">12:00</span>
-            </div>
-            <div class="control-group">
-                <label class="form-label">Rain Intensity</label>
-                <input type="range" class="form-control" id="rain-slider" min="0" max="1" step="0.1" value="0.3">
-            </div>
-            <div class="control-group">
-                <label class="form-label">Wind Strength</label>
-                <input type="range" class="form-control" id="wind-slider" min="0" max="1" step="0.1" value="0.5">
-            </div>
-            <div class="control-group">
-                <button class="btn btn--secondary btn--sm" id="season-btn">Change Season</button>
-                <button class="btn btn--secondary btn--sm" id="weather-random">Random Weather</button>
-            </div>
-        </div>
+  <!-- Environment Controls -->
+  <div class="controls">
+    <h3>Environment</h3>
+    <label for="time-slider">Time of Day</label>
+    <input type="range" id="time-slider" min="0" max="24" step="0.1" value="12">
+    <span id="time-display">12:00</span>
+    <br>
+    <label for="rain-slider">Rain Intensity</label>
+    <input type="range" id="rain-slider" min="0" max="1" step="0.01" value="0.3">
+    <br>
+    <label for="wind-slider">Wind Strength</label>
+    <input type="range" id="wind-slider" min="0" max="1" step="0.01" value="0.5">
+    <br>
+    <button id="season-btn">Change Season</button>
+    <button id="weather-random">Random Weather</button>
+  </div>
 
-        <!-- Audio Controls -->
-        <div class="card control-panel" id="audio-panel">
-            <h3>Audio</h3>
-            <div class="control-group">
-                <label class="form-label">Rain Sounds</label>
-                <input type="range" class="form-control" id="rain-audio" min="0" max="1" step="0.1" value="0.6">
-            </div>
-            <div class="control-group">
-                <label class="form-label">Nature Sounds</label>
-                <input type="range" class="form-control" id="nature-audio" min="0" max="1" step="0.1" value="0.7">
-            </div>
-            <div class="control-group">
-                <label class="form-label">Wind Sounds</label>
-                <input type="range" class="form-control" id="wind-audio" min="0" max="1" step="0.1" value="0.5">
-            </div>
-        </div>
+  <!-- Audio Controls -->
+  <div class="controls">
+    <h3>Audio</h3>
+    <label for="rain-audio">Rain Sounds</label>
+    <input type="range" id="rain-audio" min="0" max="1" step="0.01" value="0.6">
+    <br>
+    <label for="nature-audio">Nature Sounds</label>
+    <input type="range" id="nature-audio" min="0" max="1" step="0.01" value="0.7">
+    <br>
+    <label for="wind-audio">Wind Sounds</label>
+    <input type="range" id="wind-audio" min="0" max="1" step="0.01" value="0.5">
+  </div>
 
-        <!-- Avatar Customization -->
-        <div class="card control-panel" id="avatar-panel">
-            <h3>Avatar</h3>
-            <div class="control-group">
-                <label class="form-label">Body Type</label>
-                <select class="form-control" id="body-type">
-                    <option value="slim">Slim</option>
-                    <option value="average" selected>Average</option>
-                    <option value="broad">Broad</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label class="form-label">Hair Color</label>
-                <select class="form-control" id="hair-color">
-                    <option value="brown" selected>Brown</option>
-                    <option value="blonde">Blonde</option>
-                    <option value="black">Black</option>
-                    <option value="red">Red</option>
-                    <option value="gray">Gray</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label class="form-label">Clothing</label>
-                <select class="form-control" id="clothing">
-                    <option value="casual" selected>Casual</option>
-                    <option value="cozy">Cozy Sweater</option>
-                    <option value="formal">Formal</option>
-                </select>
-            </div>
-        </div>
+  <!-- Avatar Customization -->
+  <div class="controls">
+    <h3>Avatar</h3>
+    <label for="body-type">Body Type</label>
+    <select id="body-type">
+      <option value="slim">Slim</option>
+      <option value="average" selected>Average</option>
+      <option value="broad">Broad</option>
+    </select>
+    <br>
+    <label for="hair-color">Hair Color</label>
+    <select id="hair-color">
+      <option value="brown" selected>Brown</option>
+      <option value="blonde">Blonde</option>
+      <option value="black">Black</option>
+      <option value="red">Red</option>
+      <option value="gray">Gray</option>
+    </select>
+    <br>
+    <label for="clothing">Clothing</label>
+    <select id="clothing">
+      <option value="casual" selected>Casual</option>
+      <option value="cozy">Cozy Sweater</option>
+      <option value="formal">Formal</option>
+    </select>
+  </div>
 
-        <!-- Mode Toggle -->
-        <div class="card control-panel" id="mode-panel">
-            <h3>Interaction Mode</h3>
-            <div class="control-group">
-                <button class="btn btn--primary" id="idle-toggle">Enable Idle Mode</button>
-                <p class="status" id="mode-status">Active Mode - Click to interact</p>
-            </div>
-        </div>
-    </div>
+  <!-- Interaction Mode -->
+  <div class="controls">
+    <h3>Interaction Mode</h3>
+    <button id="idle-toggle">Enable Idle Mode</button>
+    <span id="mode-status" class="status">Active Mode - Click to interact</span>
+  </div>
 
-    <!-- Instructions -->
-    <div id="instructions" class="card">
-        <h3>Welcome to Your Peaceful Garden</h3>
-        <p>Click and drag to look around • Use mouse wheel to zoom • Click on objects to interact</p>
-        <p>Sit on the swing or rocking chair • Watch the animals roam • Enjoy the ambient sounds</p>
-        <button class="btn btn--secondary btn--sm" id="close-instructions">Got it!</button>
-    </div>
+  <!-- Main Scene Display -->
+  <div id="scene-container" style="width:100vw; height:90vh;"></div>
 
-    <!-- Loading Screen -->
-    <div id="loading-screen">
-        <div class="loading-content">
-            <h2>Loading Your Peaceful Garden...</h2>
-            <div class="loading-progress">
-                <div class="loading-bar" id="loading-bar"></div>
-            </div>
-            <p id="loading-text">Setting up the environment...</p>
-        </div>
-    </div>
+  <!-- Welcome Message -->
+  <div class="info">
+    <h3>Welcome to Your Peaceful Garden</h3>
+    <p>
+      Click and drag to look around • Use mouse wheel to zoom • Click on objects to interact<br>
+      Sit on the swing or rocking chair • Watch the animals roam • Enjoy the ambient sounds
+    </p>
+  </div>
 
-    <script src="app.js"></script>
+  <!-- Loading Overlay -->
+  <div id="loading-screen" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:#222d; color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:1000;">
+    <div id="loading-bar" style="width:0; height:5px; background:#7bc872; margin-bottom:30px;"></div>
+    <div id="loading-text">Setting up the environment...</div>
+  </div>
+
+  <!-- Three.js and loaders (ALWAYS in this order below!) -->
+  <script src="three.min.js"></script>
+  <!-- This line is new! -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="OrbitControls.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
